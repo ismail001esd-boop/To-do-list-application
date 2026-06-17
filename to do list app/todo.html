@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My To-Do List</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-1: #fff4e0;
+    --bg-2: #ffe8f0;
+    --card: #ffffff;
+    --ink: #2e2540;
+    --ink-soft: #7a7290;
+    --pink: #ff6fa5;
+    --orange: #ff9a52;
+    --yellow: #ffc94d;
+    --green: #4fd1a5;
+    --blue: #5aa9ff;
+    --purple: #9b7bff;
+    --border: rgba(46, 37, 64, 0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 100%);
+    font-family: 'Nunito', sans-serif;
+    color: var(--ink);
+    display: flex;
+    justify-content: center;
+    padding: 48px 20px;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 520px;
+  }
+
+  .app-header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .app-title {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 2.2rem;
+    color: var(--ink);
+  }
+
+  .app-title .dot {
+    color: var(--pink);
+  }
+
+  .app-sub {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    margin-top: 6px;
+  }
+
+  .progress-card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 18px 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 30px -10px rgba(46, 37, 64, 0.12);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .progress-ring {
+    flex-shrink: 0;
+  }
+
+  .progress-text {
+    flex: 1;
+  }
+
+  .progress-count {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+
+  .progress-label {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+
+  .input-card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 14px;
+    margin-bottom: 24px;
+    box-shadow: 0 10px 30px -10px rgba(46, 37, 64, 0.12);
+    display: flex;
+    gap: 10px;
+  }
+
+  #taskInput {
+    flex: 1;
+    border: none;
+    background: #faf8fc;
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    color: var(--ink);
+  }
+
+  #taskInput:focus {
+    outline: 2px solid var(--purple);
+  }
+
+  #taskInput::placeholder {
+    color: var(--ink-soft);
+  }
+
+  .add-btn {
+    background: var(--pink);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    width: 52px;
+    font-size: 1.6rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+    line-height: 1;
+  }
+
+  .add-btn:hover {
+    background: #ff5293;
+    transform: scale(1.05);
+  }
+
+  .add-btn:active {
+    transform: scale(0.95);
+  }
+
+  .task-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .task-item {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 16px 16px 16px 14px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 8px 20px -10px rgba(46, 37, 64, 0.1);
+    border-left: 6px solid var(--accent-color, var(--purple));
+    animation: pop-in 0.25s ease;
+  }
+
+  @keyframes pop-in {
+    from { opacity: 0; transform: translateY(8px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .task-checkbox {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2.5px solid var(--accent-color, var(--purple));
+    flex-shrink: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    transition: background 0.15s ease;
+    padding: 0;
+  }
+
+  .task-checkbox.checked {
+    background: var(--accent-color, var(--purple));
+  }
+
+  .task-checkbox svg {
+    width: 14px;
+    height: 14px;
+    opacity: 0;
+    transition: opacity 0.1s ease;
+  }
+
+  .task-checkbox.checked svg {
+    opacity: 1;
+  }
+
+  .task-text {
+    flex: 1;
+    font-size: 1rem;
+    word-break: break-word;
+  }
+
+  .task-text.done {
+    text-decoration: line-through;
+    color: var(--ink-soft);
+  }
+
+  .delete-btn {
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    font-size: 1.3rem;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: background 0.15s ease, color 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .delete-btn:hover {
+    background: #ffe5ec;
+    color: var(--pink);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--ink-soft);
+  }
+
+  .empty-emoji {
+    font-size: 2.8rem;
+    margin-bottom: 12px;
+  }
+
+  .empty-state p {
+    font-size: 0.95rem;
+  }
+
+  .loading-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--ink-soft);
+  }
+
+  .footer-note {
+    text-align: center;
+    margin-top: 28px;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 420px) {
+    .app-title { font-size: 1.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="app-header">
+    <h1 class="app-title">My To-Do List<span class="dot">.</span></h1>
+    <p class="app-sub">Small steps, ticked off one by one</p>
+  </div>
+
+  <div class="progress-card">
+    <svg class="progress-ring" width="56" height="56" viewBox="0 0 56 56">
+      <circle cx="28" cy="28" r="24" fill="none" stroke="#f1edf7" stroke-width="6"></circle>
+      <circle id="progressCircle" cx="28" cy="28" r="24" fill="none" stroke="#ff6fa5" stroke-width="6"
+        stroke-linecap="round" stroke-dasharray="150.8" stroke-dashoffset="150.8"
+        transform="rotate(-90 28 28)" style="transition: stroke-dashoffset 0.4s ease;"></circle>
+      <text x="28" y="33" text-anchor="middle" font-family="Baloo 2" font-weight="600" font-size="14" fill="#2e2540" id="progressPercent">0%</text>
+    </svg>
+    <div class="progress-text">
+      <div class="progress-count" id="progressCount">0 of 0 done</div>
+      <div class="progress-label">Keep going, you've got this</div>
+    </div>
+  </div>
+
+  <div class="input-card">
+    <input type="text" id="taskInput" placeholder="What do you need to do?" maxlength="200">
+    <button class="add-btn" id="addBtn" aria-label="Add task">+</button>
+  </div>
+
+  <ul class="task-list" id="taskList"></ul>
+
+  <div class="loading-state" id="loadingState">Loading your tasks...</div>
+  <div class="empty-state" id="emptyState" style="display:none;">
+    <div class="empty-emoji">🌤️</div>
+    <p>Nothing on your list yet.<br>Add your first task above!</p>
+  </div>
+
+  <p class="footer-note">Your tasks save automatically</p>
+</div>
+
+<script>
+const ACCENTS = ['#ff6fa5', '#ff9a52', '#ffc94d', '#4fd1a5', '#5aa9ff', '#9b7bff'];
+const STORAGE_KEY = 'todo-tasks';
+
+let tasks = [];
+
+const taskListEl = document.getElementById('taskList');
+const taskInputEl = document.getElementById('taskInput');
+const addBtnEl = document.getElementById('addBtn');
+const emptyStateEl = document.getElementById('emptyState');
+const loadingStateEl = document.getElementById('loadingState');
+const progressCircleEl = document.getElementById('progressCircle');
+const progressPercentEl = document.getElementById('progressPercent');
+const progressCountEl = document.getElementById('progressCount');
+
+const CIRCUMFERENCE = 2 * Math.PI * 24;
+
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+async function loadTasks() {
+  try {
+    const result = await window.storage.get(STORAGE_KEY, false);
+    tasks = result ? JSON.parse(result.value) : [];
+  } catch (err) {
+    tasks = [];
+  }
+  loadingStateEl.style.display = 'none';
+  render();
+}
+
+async function saveTasks() {
+  try {
+    await window.storage.set(STORAGE_KEY, JSON.stringify(tasks), false);
+  } catch (err) {
+    console.error('Could not save tasks', err);
+  }
+}
+
+function addTask(text) {
+  const trimmed = text.trim();
+  if (!trimmed) return;
+
+  tasks.unshift({
+    id: genId(),
+    text: trimmed,
+    done: false,
+    color: ACCENTS[Math.floor(Math.random() * ACCENTS.length)]
+  });
+
+  taskInputEl.value = '';
+  saveTasks();
+  render();
+}
+
+function toggleTask(id) {
+  const task = tasks.find(t => t.id === id);
+  if (task) task.done = !task.done;
+  saveTasks();
+  render();
+}
+
+function deleteTask(id) {
+  tasks = tasks.filter(t => t.id !== id);
+  saveTasks();
+  render();
+}
+
+function render() {
+  taskListEl.innerHTML = '';
+
+  if (tasks.length === 0) {
+    emptyStateEl.style.display = 'block';
+  } else {
+    emptyStateEl.style.display = 'none';
+
+    tasks.forEach(task => {
+      const li = document.createElement('li');
+      li.className = 'task-item';
+      li.style.setProperty('--accent-color', task.color);
+
+      const checkbox = document.createElement('button');
+      checkbox.className = 'task-checkbox' + (task.done ? ' checked' : '');
+      checkbox.setAttribute('aria-label', task.done ? 'Mark as not done' : 'Mark as done');
+      checkbox.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      checkbox.addEventListener('click', () => toggleTask(task.id));
+
+      const span = document.createElement('span');
+      span.className = 'task-text' + (task.done ? ' done' : '');
+      span.textContent = task.text;
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'delete-btn';
+      delBtn.setAttribute('aria-label', 'Delete task');
+      delBtn.textContent = '✕';
+      delBtn.addEventListener('click', () => deleteTask(task.id));
+
+      li.appendChild(checkbox);
+      li.appendChild(span);
+      li.appendChild(delBtn);
+      taskListEl.appendChild(li);
+    });
+  }
+
+  const doneCount = tasks.filter(t => t.done).length;
+  const total = tasks.length;
+  const pct = total === 0 ? 0 : Math.round((doneCount / total) * 100);
+
+  progressCountEl.textContent = total === 0 ? 'No tasks yet' : `${doneCount} of ${total} done`;
+  progressPercentEl.textContent = pct + '%';
+
+  const offset = CIRCUMFERENCE - (pct / 100) * CIRCUMFERENCE;
+  progressCircleEl.style.strokeDashoffset = offset;
+}
+
+addBtnEl.addEventListener('click', () => addTask(taskInputEl.value));
+taskInputEl.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') addTask(taskInputEl.value);
+});
+
+loadTasks();
+</script>
+</body>
+</html>
